@@ -24132,13 +24132,9 @@
                     }
                 }
                 
-                // Also open modal if it exists (for backward compatibility)
+                // Close modal if it's open (only use top section, not modal)
                 if (modal) {
-                    modal.classList.add('active');
-                    // Close other modals
-                    closeProductLibraryModal();
-                    // Reset to upload tab when opening
-                    switchWDDCTab('upload');
+                    modal.classList.remove('active');
                 }
                 
                 // Close product library section when opening this
@@ -24146,6 +24142,9 @@
                 if (productLibrarySection) {
                     productLibrarySection.style.display = 'none';
                 }
+                
+                // Close product library modal
+                closeProductLibraryModal();
             }
 
             function closeWDDCOrderModal() {
@@ -24213,11 +24212,9 @@
                     }
                 }
                 
-                // Also open modal if it exists (for backward compatibility)
+                // Close modal if it's open (only use top section, not modal)
                 if (modal) {
-                    modal.classList.add('active');
-                    // Close other modals
-                    closeWDDCOrderModal();
+                    modal.classList.remove('active');
                 }
                 
                 // Close WDDC order section when opening this
@@ -24225,6 +24222,9 @@
                 if (wddcOrderSection) {
                     wddcOrderSection.style.display = 'none';
                 }
+                
+                // Close WDDC order modal
+                closeWDDCOrderModal();
             }
 
             function closeProductLibraryModal() {
