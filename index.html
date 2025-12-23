@@ -2897,6 +2897,108 @@
         </div>
 
         <div class="content">
+            <!-- Top Section: Drag & Drop and Product Library -->
+            <div style="margin-bottom: 40px;">
+                <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2em; font-weight: 700;">
+                    <i class="fas fa-upload"></i> Upload & Product Library
+                </h2>
+                
+                <!-- Drag & Drop Section -->
+                <div style="margin-bottom: 40px;">
+                    <div class="wddc-dropzone" id="uploadDropzoneTop">
+                        <div class="wddc-dropzone-content">
+                            <div class="wddc-dropzone-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="wddc-dropzone-text">
+                                <h3>Drag & Drop Your Order Form</h3>
+                                <p>Drop PDF or image files here, or click to browse</p>
+                            </div>
+                            <div class="wddc-dropzone-features">
+                                <span><i class="fas fa-check"></i> PDF Files</span>
+                                <span><i class="fas fa-check"></i> Images (JPG, PNG)</span>
+                                <span><i class="fas fa-check"></i> Multiple Files</span>
+                            </div>
+                        </div>
+                        <div class="wddc-dropzone-overlay">
+                            <div class="wddc-dropzone-overlay-content">
+                                <i class="fas fa-file-upload"></i>
+                                <p>Drop files here</p>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInputTop" class="upload-file-input" multiple accept=".pdf,image/*" style="display: none;">
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="wddc-btn-primary" onclick="document.getElementById('fileInputTop').click()">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Browse Files</span>
+                        </button>
+                    </div>
+                    <div class="upload-status" id="uploadStatusTop" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- Product Library Section -->
+                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div>
+                            <h3 style="color: white; font-size: 1.5em; font-weight: 700; margin: 0 0 8px 0;">
+                                <i class="fas fa-boxes" style="color: #6366f1;"></i> Product Library
+                            </h3>
+                            <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 14px;">Manage products without barcodes. These products are automatically recognized when scanned.</p>
+                        </div>
+                    </div>
+
+                    <div class="product-library-toolbar" style="margin-bottom: 20px;">
+                        <div class="product-library-search-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input 
+                                type="text" 
+                                id="librarySearchTop" 
+                                class="product-library-search" 
+                                placeholder="Search products by name, size, or notes..."
+                                autocomplete="off"
+                            >
+                            <button class="search-clear" id="searchClearBtnTop" style="display: none;" onclick="clearLibrarySearchTop()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <button class="product-library-btn-add" id="openAddProductModalBtnTop" onclick="openAddProductModal()">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Product</span>
+                        </button>
+                    </div>
+
+                    <div class="product-library-stats" id="libraryStatsTop" style="margin-bottom: 20px;">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalProductsCountTop">0</span>
+                            <span class="stat-label">Total Products</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="filteredProductsCountTop">0</span>
+                            <span class="stat-label">Showing</span>
+                        </div>
+                    </div>
+
+                    <div class="product-library-status" id="libraryStatusTop"></div>
+
+                    <div class="product-library-content">
+                        <div class="product-library-grid" id="libraryTableBodyTop">
+                            <div class="product-library-empty">
+                                <div class="empty-icon">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <h3>No Products Yet</h3>
+                                <p>Start building your product library by adding products without barcodes.</p>
+                                <button class="product-library-btn-add-empty" onclick="openAddProductModal()">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Add Your First Product</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Scanner Section -->
             <div class="scanner-section">
                 <!-- Quick Actions -->
@@ -20950,13 +21052,21 @@
         }
 
         function renderManualProductList(searchTerm) {
+            // Get both modal and top-level elements
             const grid = document.getElementById('libraryTableBody');
+            const gridTop = document.getElementById('libraryTableBodyTop');
             const totalCountEl = document.getElementById('totalProductsCount');
+            const totalCountElTop = document.getElementById('totalProductsCountTop');
             const filteredCountEl = document.getElementById('filteredProductsCount');
+            const filteredCountElTop = document.getElementById('filteredProductsCountTop');
             const searchClearBtn = document.getElementById('searchClearBtn');
+            const searchClearBtnTop = document.getElementById('searchClearBtnTop');
             const searchInput = document.getElementById('librarySearch');
+            const searchInputTop = document.getElementById('librarySearchTop');
             
-            if (!grid) return;
+            // Use whichever grid is available, prefer top-level
+            const activeGrid = gridTop || grid;
+            if (!activeGrid) return;
 
             const activeSearch = typeof searchTerm === 'string'
                 ? searchTerm
@@ -20970,21 +21080,27 @@
                 })
                 : manualProducts;
 
-            // Update stats
+            // Update stats for both locations
             if (totalCountEl) totalCountEl.textContent = manualProducts.length;
+            if (totalCountElTop) totalCountElTop.textContent = manualProducts.length;
             if (filteredCountEl) filteredCountEl.textContent = filteredList.length;
+            if (filteredCountElTop) filteredCountElTop.textContent = filteredList.length;
             
-            // Show/hide clear button
+            // Show/hide clear button for both locations
             if (searchClearBtn && searchInput) {
                 searchClearBtn.style.display = activeSearch ? 'flex' : 'none';
             }
+            if (searchClearBtnTop && searchInputTop) {
+                searchClearBtnTop.style.display = activeSearch ? 'flex' : 'none';
+            }
 
+            // Render to both grids if they exist
             if (filteredList.length === 0) {
-                grid.innerHTML = `
+                const emptyHTML = `
                     <div class="product-library-empty">
                         <div class="empty-icon">
                             <i class="fas fa-${normalized ? 'search' : 'inbox'}"></i>
-                            </div>
+                        </div>
                         <h3>${normalized ? 'No Products Found' : 'No Products Yet'}</h3>
                         <p>${normalized ? 'Try adjusting your search terms.' : 'Start building your product library by adding products without barcodes.'}</p>
                         ${!normalized ? `
@@ -20995,10 +21111,12 @@
                         ` : ''}
                     </div>
                 `;
+                if (grid) grid.innerHTML = emptyHTML;
+                if (gridTop) gridTop.innerHTML = emptyHTML;
                 return;
             }
 
-            grid.innerHTML = filteredList.map(item => {
+            const productsHTML = filteredList.map(item => {
                 const createdDate = new Date(item.createdAt);
                 const formattedDate = createdDate.toLocaleDateString('en-US', { 
                     month: 'short', 
@@ -21073,6 +21191,10 @@
                     </div>
                 `;
             }).join('');
+            
+            // Update both grids if they exist
+            if (grid) grid.innerHTML = productsHTML;
+            if (gridTop) gridTop.innerHTML = productsHTML;
         }
 
         // Add any product (database or manual) to scans
@@ -21151,6 +21273,15 @@
         }
 
         window.clearLibrarySearch = clearLibrarySearch;
+        
+        function clearLibrarySearchTop() {
+            const searchInput = document.getElementById('librarySearchTop');
+            if (searchInput) {
+                searchInput.value = '';
+                renderManualProductList('');
+            }
+        }
+        window.clearLibrarySearchTop = clearLibrarySearchTop;
 
         function showLibraryStatus(message, type) {
             const statusEl = document.getElementById('libraryStatus');
@@ -23956,15 +24087,23 @@
                 manualForm.addEventListener('submit', addManualProduct);
             }
 
+            // Add search handlers for both modal and top-level
             const librarySearch = document.getElementById('librarySearch');
+            const librarySearchTop = document.getElementById('librarySearchTop');
+            
+            function handleLibrarySearch(event, clearBtnId) {
+                renderManualProductList(event.target.value);
+                const searchClearBtn = document.getElementById(clearBtnId);
+                if (searchClearBtn) {
+                    searchClearBtn.style.display = event.target.value ? 'flex' : 'none';
+                }
+            }
+            
             if (librarySearch) {
-                librarySearch.addEventListener('input', (event) => {
-                    renderManualProductList(event.target.value);
-                    const searchClearBtn = document.getElementById('searchClearBtn');
-                    if (searchClearBtn) {
-                        searchClearBtn.style.display = event.target.value ? 'flex' : 'none';
-                    }
-                });
+                librarySearch.addEventListener('input', (event) => handleLibrarySearch(event, 'searchClearBtn'));
+            }
+            if (librarySearchTop) {
+                librarySearchTop.addEventListener('input', (event) => handleLibrarySearch(event, 'searchClearBtnTop'));
             }
 
             // Modal functions for WDDC Order Form
@@ -24100,26 +24239,39 @@
                 uploadDropzone = document.getElementById('uploadDropzone');
                 fileInput = document.getElementById('fileInput');
                 
-                if (!uploadDropzone || !fileInput) {
-                    console.warn('⚠️ [DRAG-DROP] Dropzone or file input not found - modal may not be open');
-                    return;
+                // Also get top-level elements
+                const uploadDropzoneTop = document.getElementById('uploadDropzoneTop');
+                const fileInputTop = document.getElementById('fileInputTop');
+                
+                // Attach handlers to modal elements if they exist
+                if (uploadDropzone && fileInput) {
+                    attachHandlersToElement(uploadDropzone, fileInput, 'uploadStatus');
                 }
                 
+                // Attach handlers to top-level elements if they exist
+                if (uploadDropzoneTop && fileInputTop) {
+                    attachHandlersToElement(uploadDropzoneTop, fileInputTop, 'uploadStatusTop');
+                }
+            }
+            
+            // Helper function to attach handlers to a specific dropzone
+            function attachHandlersToElement(dropzone, input, statusId) {
+                if (!dropzone || !input) return;
+                
                 // Check if handlers are already attached
-                if (uploadDropzone.dataset.handlersAttached === 'true') {
-                    console.log('✅ [DRAG-DROP] Handlers already attached');
+                if (dropzone.dataset.handlersAttached === 'true') {
+                    console.log('✅ [DRAG-DROP] Handlers already attached to', dropzone.id);
                     return;
                 }
 
-            if (uploadDropzone && fileInput) {
                 let dragCounter = 0; // Track drag enter/leave to handle child elements
                 let dragTimeout = null;
 
                 // Click to upload
-                uploadDropzone.addEventListener('click', (e) => {
+                dropzone.addEventListener('click', (e) => {
                     // Don't trigger file input if clicking on child elements that have their own handlers
-                    if (e.target === uploadDropzone || e.target.closest('.upload-dropzone-content')) {
-                        fileInput.click();
+                    if (e.target === dropzone || e.target.closest('.wddc-dropzone-content')) {
+                        input.click();
                     }
                 });
 
@@ -24128,28 +24280,8 @@
                     e.preventDefault();
                 });
 
-                document.addEventListener('drop', (e) => {
-                    const isOverDropzone = e.target.closest && e.target.closest('#uploadDropzone');
-                    const isOverBarcodeInput = e.target.id === 'barcodeInput' || (e.target.closest && e.target.closest('#barcodeInput'));
-                    
-                    console.log('📦 [DRAG-DROP] Document drop event:', {
-                        isOverDropzone: isOverDropzone,
-                        isOverBarcodeInput: isOverBarcodeInput,
-                        target: e.target.id || e.target.className
-                    });
-                    
-                    // Only prevent default if NOT over dropzone - let dropzone handler process it
-                    if (!isOverDropzone) {
-                        e.preventDefault();
-                        if (isOverBarcodeInput) {
-                            showStatus('Files cannot be dropped here. Use the upload area in the WDDC Order Form modal.', 'error');
-                        }
-                    }
-                    // If over dropzone, don't prevent default - let the dropzone handler process it
-                });
-
                 // Dropzone-specific handlers
-                uploadDropzone.addEventListener('dragenter', (e) => {
+                dropzone.addEventListener('dragenter', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     dragCounter++;
@@ -24159,21 +24291,21 @@
                         dragTimeout = null;
                     }
                     
-                    uploadDropzone.classList.add('dragover');
+                    dropzone.classList.add('dragover');
                 });
 
-                uploadDropzone.addEventListener('dragover', (e) => {
+                dropzone.addEventListener('dragover', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     e.dataTransfer.dropEffect = 'copy';
                     
                     // Ensure dragover class is added
-                    if (!uploadDropzone.classList.contains('dragover')) {
-                        uploadDropzone.classList.add('dragover');
+                    if (!dropzone.classList.contains('dragover')) {
+                        dropzone.classList.add('dragover');
                     }
                 });
 
-                uploadDropzone.addEventListener('dragleave', (e) => {
+                dropzone.addEventListener('dragleave', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     dragCounter--;
@@ -24183,16 +24315,16 @@
                     dragTimeout = setTimeout(() => {
                         if (dragCounter <= 0) {
                             dragCounter = 0;
-                            uploadDropzone.classList.remove('dragover');
+                            dropzone.classList.remove('dragover');
                         }
                     }, 50);
                 });
 
-                uploadDropzone.addEventListener('drop', (e) => {
+                dropzone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    console.log('📦 [DRAG-DROP] Drop event triggered on dropzone');
+                    console.log('📦 [DRAG-DROP] Drop event triggered on dropzone', dropzone.id);
                     
                     // Clear timeout and reset state
                     if (dragTimeout) {
@@ -24200,7 +24332,7 @@
                         dragTimeout = null;
                     }
                     dragCounter = 0;
-                    uploadDropzone.classList.remove('dragover');
+                    dropzone.classList.remove('dragover');
                     
                     const files = e.dataTransfer.files;
                     console.log('📦 [DRAG-DROP] Files from drop:', {
@@ -24220,18 +24352,26 @@
                             handleFiles(files);
                         } else {
                             console.error('❌ [DRAG-DROP] handleFiles function not found!');
-                            showStatus('Error: File handler not available. Please refresh the page.', 'error');
+                            const statusEl = document.getElementById(statusId);
+                            if (statusEl) {
+                                statusEl.textContent = 'Error: File handler not available. Please refresh the page.';
+                                statusEl.className = 'upload-status error';
+                            }
                         }
                     } else {
                         console.warn('⚠️ [DRAG-DROP] Drop event but no files found in dataTransfer');
-                        showStatus('No files detected in drop. Please try again.', 'warning');
+                        const statusEl = document.getElementById(statusId);
+                        if (statusEl) {
+                            statusEl.textContent = 'No files detected in drop. Please try again.';
+                            statusEl.className = 'upload-status warning';
+                        }
                     }
                     
                     return false;
                 });
 
                 // File input change
-                fileInput.addEventListener('change', (e) => {
+                input.addEventListener('change', (e) => {
                     const files = e.target.files;
                     if (files && files.length > 0) {
                         handleFiles(files);
@@ -24241,9 +24381,8 @@
                 });
                 
                 // Mark handlers as attached
-                uploadDropzone.dataset.handlersAttached = 'true';
-                console.log('✅ [DRAG-DROP] Handlers attached successfully');
-            }
+                dropzone.dataset.handlersAttached = 'true';
+                console.log('✅ [DRAG-DROP] Handlers attached successfully to', dropzone.id);
             }
             
             // Try to attach handlers immediately
