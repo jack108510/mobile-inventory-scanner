@@ -24442,26 +24442,47 @@
             // Try to attach handlers immediately
             attachDragDropHandlers();
             
-            // Also try to attach when modal opens
+            // Ensure modals are closed on page load (we only use top sections now)
             const wddcOrderModalElement = document.getElementById('wddcOrderModal');
+            const productLibraryModalElement = document.getElementById('productLibraryModal');
             if (wddcOrderModalElement) {
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
-                            const isVisible = wddcModal.classList.contains('active') || wddcModal.style.display === 'block';
-                            if (isVisible) {
-                                console.log('📦 [DRAG-DROP] Modal opened, attaching handlers');
-                                attachDragDropHandlers();
-                            }
+                wddcOrderModalElement.classList.remove('active');
+            }
+            if (productLibraryModalElement) {
+                productLibraryModalElement.classList.remove('active');
+            }
+            
+            // Prevent modals from opening - intercept classList.add('active')
+            if (wddcOrderModalElement) {
+                const modal = wddcOrderModalElement;
+                const originalAdd = modal.classList.add.bind(modal.classList);
+                modal.classList.add = function(...args) {
+                    if (args.includes('active')) {
+                        // Don't allow modal to open - use top section instead
+                        const topSection = document.getElementById('wddcOrderSectionTop');
+                        if (topSection && topSection.style.display === 'none') {
+                            toggleWDDCOrderSection();
                         }
-                    });
-                });
-                observer.observe(wddcOrderModalElement, { attributes: true, attributeFilter: ['style', 'class'] });
-                
-                // Also check when modal is clicked to open
-                wddcOrderModalElement.addEventListener('click', function() {
-                    setTimeout(() => attachDragDropHandlers(), 100);
-                }, true);
+                        return;
+                    }
+                    return originalAdd.apply(this, args);
+                };
+            }
+            
+            if (productLibraryModalElement) {
+                const modal = productLibraryModalElement;
+                const originalAdd = modal.classList.add.bind(modal.classList);
+                modal.classList.add = function(...args) {
+                    if (args.includes('active')) {
+                        // Don't allow modal to open - use top section instead
+                        const topSection = document.getElementById('productLibrarySectionTop');
+                        if (topSection && topSection.style.display === 'none') {
+                            toggleProductLibrarySection();
+                        }
+                        return;
+                    }
+                    return originalAdd.apply(this, args);
+                };
             }
 
             // Barcode Scanner Camera functionality
