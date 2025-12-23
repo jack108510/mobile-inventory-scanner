@@ -2900,12 +2900,16 @@
         <div class="content">
             <!-- Top Section: Drag & Drop and Product Library -->
             <div style="margin-bottom: 40px;">
-                <h2 style="color: white; text-align: center; margin-bottom: 30px; font-size: 2em; font-weight: 700;">
-                    <i class="fas fa-upload"></i> Upload & Product Library
-                </h2>
-                
                 <!-- Drag & Drop Section -->
-                <div style="margin-bottom: 40px;">
+                <div id="wddcOrderSectionTop" style="margin-bottom: 40px; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: white; font-size: 1.8em; font-weight: 700; margin: 0;">
+                            <i class="fas fa-upload"></i> Upload WDDC Order Form
+                        </h2>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleWDDCOrderSection()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
                     <div class="wddc-dropzone" id="uploadDropzoneTop">
                         <div class="wddc-dropzone-content">
                             <div class="wddc-dropzone-icon">
@@ -2939,7 +2943,7 @@
                 </div>
 
                 <!-- Product Library Section -->
-                <div style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div id="productLibrarySectionTop" style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1); display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                         <div>
                             <h3 style="color: white; font-size: 1.5em; font-weight: 700; margin: 0 0 8px 0;">
@@ -2947,6 +2951,9 @@
                             </h3>
                             <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 14px;">Manage products without barcodes. These products are automatically recognized when scanned.</p>
                         </div>
+                        <button class="btn btn-secondary btn-sm" onclick="toggleProductLibrarySection()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                            <i class="fas fa-times"></i> Close
+                        </button>
                     </div>
 
                     <div class="product-library-toolbar" style="margin-bottom: 20px;">
@@ -24109,13 +24116,35 @@
 
             // Modal functions for WDDC Order Form
             function toggleWDDCOrderSection() {
+                const topSection = document.getElementById('wddcOrderSectionTop');
                 const modal = document.getElementById('wddcOrderModal');
+                
+                // Toggle top section
+                if (topSection) {
+                    const isVisible = topSection.style.display !== 'none';
+                    topSection.style.display = isVisible ? 'none' : 'block';
+                    
+                    // Scroll to section when opening
+                    if (!isVisible) {
+                        setTimeout(() => {
+                            topSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                }
+                
+                // Also open modal if it exists (for backward compatibility)
                 if (modal) {
                     modal.classList.add('active');
                     // Close other modals
                     closeProductLibraryModal();
                     // Reset to upload tab when opening
                     switchWDDCTab('upload');
+                }
+                
+                // Close product library section when opening this
+                const productLibrarySection = document.getElementById('productLibrarySectionTop');
+                if (productLibrarySection) {
+                    productLibrarySection.style.display = 'none';
                 }
             }
 
@@ -24166,11 +24195,35 @@
 
             // Modal functions for Product Library
             function toggleProductLibrarySection() {
+                const topSection = document.getElementById('productLibrarySectionTop');
                 const modal = document.getElementById('productLibraryModal');
+                
+                // Toggle top section
+                if (topSection) {
+                    const isVisible = topSection.style.display !== 'none';
+                    topSection.style.display = isVisible ? 'none' : 'block';
+                    
+                    // Scroll to section when opening
+                    if (!isVisible) {
+                        setTimeout(() => {
+                            topSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            // Load product library when opening
+                            renderManualProductList('');
+                        }, 100);
+                    }
+                }
+                
+                // Also open modal if it exists (for backward compatibility)
                 if (modal) {
                     modal.classList.add('active');
                     // Close other modals
                     closeWDDCOrderModal();
+                }
+                
+                // Close WDDC order section when opening this
+                const wddcOrderSection = document.getElementById('wddcOrderSectionTop');
+                if (wddcOrderSection) {
+                    wddcOrderSection.style.display = 'none';
                 }
             }
 
