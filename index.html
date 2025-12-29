@@ -3086,6 +3086,22 @@
                     </p>
                 </div>
 
+                <!-- Webhook Response Display Section -->
+                <div id="webhookResponseSection" style="margin-top: 40px; display: none; background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: white; font-size: 1.5em; font-weight: 700; margin: 0;">
+                            <i class="fas fa-check-circle" id="webhookResponseIcon" style="color: #10b981;"></i> 
+                            <span id="webhookResponseTitle">Webhook Response</span>
+                        </h3>
+                        <button class="btn btn-secondary btn-sm" onclick="closeWebhookResponse()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                    <div id="webhookResponseContent" style="color: rgba(255, 255, 255, 0.9); font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; max-height: 500px; overflow-y: auto; padding: 20px; background: rgba(0, 0, 0, 0.2); border-radius: 12px;">
+                        <!-- Response will be displayed here -->
+                    </div>
+                </div>
+
 
         <!-- WDDC Order Form Modal -->
         <div class="modal" id="wddcOrderModal">
@@ -23047,6 +23063,12 @@
             const responseStatusText = document.getElementById('responseStatusText');
             const responseTitle = document.querySelector('.response-title');
             
+            // Also display in the page section
+            const webhookResponseSection = document.getElementById('webhookResponseSection');
+            const webhookResponseContent = document.getElementById('webhookResponseContent');
+            const webhookResponseTitle = document.getElementById('webhookResponseTitle');
+            const webhookResponseIcon = document.getElementById('webhookResponseIcon');
+            
             if (!loadingOverlay || !responseContent) return;
             
             // Update title and status with professional language
@@ -23174,6 +23196,26 @@
                 } else if (summaryElement) {
                     summaryElement.remove();
                 }
+                
+                // Also display in the page section
+                if (webhookResponseSection && webhookResponseContent) {
+                    if (webhookResponseTitle) {
+                        webhookResponseTitle.textContent = isSuccess ? 'Order Check Complete' : 'Order Check Failed';
+                    }
+                    if (webhookResponseIcon) {
+                        webhookResponseIcon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+                        webhookResponseIcon.style.color = isSuccess ? '#10b981' : '#ef4444';
+                    }
+                    webhookResponseContent.textContent = formattedData || (isSuccess 
+                        ? 'Your order has been checked successfully.' 
+                        : 'Unable to complete the check.');
+                    webhookResponseSection.style.display = 'block';
+                    
+                    // Scroll to the response section
+                    setTimeout(() => {
+                        webhookResponseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
             }
             
             // Show success state briefly before showing response
@@ -23204,6 +23246,14 @@
                 responseContent.classList.remove('active');
             }
         }
+        
+        function closeWebhookResponse() {
+            const webhookResponseSection = document.getElementById('webhookResponseSection');
+            if (webhookResponseSection) {
+                webhookResponseSection.style.display = 'none';
+            }
+        }
+        window.closeWebhookResponse = closeWebhookResponse;
         
         // Close modal when clicking outside the response content
         document.addEventListener('DOMContentLoaded', function() {
